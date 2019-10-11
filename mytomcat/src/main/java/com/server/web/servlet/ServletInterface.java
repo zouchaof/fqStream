@@ -1,4 +1,4 @@
-package com.server.web;
+package com.server.web.servlet;
 
 import com.enums.RequsetEnumType;
 import com.server.web.request.Requset;

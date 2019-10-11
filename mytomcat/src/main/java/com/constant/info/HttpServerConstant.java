@@ -1,4 +1,4 @@
-package com.constant;
+package com.constant.info;
 
 public interface HttpServerConstant {
 	

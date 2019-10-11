@@ -1,5 +1,6 @@
 package com.server.web.request;
 
+
 import com.enums.RequsetEnumType;
 
 public class Requset {
