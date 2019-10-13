@@ -1,10 +1,11 @@
 package com.server.web.servlet;
 
 import com.enums.RequsetMethod;
+import com.server.web.request.AbstractRequset;
 import com.server.web.request.Requset;
 import com.server.web.response.Response;
 
-public interface ServletInterface {
+public interface  ServletInterface {
 	
 	void doGet(Requset requset, Response response);
 	

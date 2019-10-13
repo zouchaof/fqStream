@@ -5,7 +5,7 @@ import java.io.InputStream;
 
 import com.enums.RequsetMethod;
 
-public class BioRequset extends Requset {
+public class BioRequset extends AbstractRequset {
 
 	public BioRequset(InputStream inputStream) {
 		setInputStream(inputStream);

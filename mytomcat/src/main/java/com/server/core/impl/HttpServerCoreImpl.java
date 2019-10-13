@@ -3,9 +3,11 @@ package com.server.core.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import com.constant.info.HostInfo;
 import com.server.core.HttpServer;
 import com.server.web.request.BioRequset;
 import com.server.web.request.NioRequset;
@@ -16,10 +18,10 @@ import com.server.web.response.Response;
 import com.server.web.servlet.ServletInterface;
 import com.server.web.servlet.http1.MyHttp1Servlet;
 
-public class HttpServerCoreImpl implements HttpServer{
+public class HttpServerCoreImpl implements HttpServer {
 
 	private boolean shutdown = false;
-	
+
 	@Override
 	public void serverStartUp(Integer port) {
 		try {
@@ -28,32 +30,35 @@ public class HttpServerCoreImpl implements HttpServer{
 			e.printStackTrace();
 		}
 	}
-	
-	private void acceptWait(Integer port) throws IOException {
+
+	private void acceptWait(int port) throws IOException {
+//		ServerSocket serverSocket = new ServerSocket(port, 1, InetAddress.getByName("127.0.0.1"));
 		ServerSocket serverSocket = new ServerSocket(port);
-		while(!shutdown) {
+		System.out.println("tomcat start...");
+		while (!shutdown) {
 			Socket socket = serverSocket.accept();
 			InputStream inputStream = socket.getInputStream();
 			OutputStream outputStream = socket.getOutputStream();
 			Requset requset;
 			Response response;
-			if("bio".equals(System.getProperty("useIo"))) {
+			if ("bio".equals(System.getProperty("useIo"))) {
 				requset = new BioRequset(inputStream);
 				response = new BioResponse(outputStream);
-			}else if("nio".equals(System.getProperty("useIo"))) {
+			} else if ("nio".equals(System.getProperty("useIo"))) {
 				requset = new NioRequset(inputStream);
 				response = new NioResponse(outputStream);
-			}else {
+			} else {
 				requset = new BioRequset(inputStream);
 				response = new BioResponse(outputStream);
 			}
 			ServletInterface servletInterface;
-			if("http2".equals(System.getProperty("httpType"))) {
+			if ("http2".equals(System.getProperty("httpType"))) {
 				throw new RuntimeException("暂不支持http2服务器");
-			}else {
+			} else {
 				servletInterface = new MyHttp1Servlet();
 			}
 			servletInterface.service(requset, response);
+			response.sendReturn();
 			socket.close();
 		}
 		serverSocket.close();
@@ -63,5 +68,5 @@ public class HttpServerCoreImpl implements HttpServer{
 	public void serverShutdown() {
 		this.shutdown = true;
 	}
-	
+
 }
