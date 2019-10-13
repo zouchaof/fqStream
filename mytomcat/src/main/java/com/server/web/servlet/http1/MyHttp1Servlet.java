@@ -13,7 +13,6 @@ public class MyHttp1Servlet implements ServletInterface{
 
 	@Override
 	public void doPost(Requset requset, Response response) {
-		// TODO Auto-generated method stub
 		
 	}
 

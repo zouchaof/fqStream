@@ -1,6 +1,6 @@
 package com.server.web.servlet;
 
-import com.enums.RequsetEnumType;
+import com.enums.RequsetMethod;
 import com.server.web.request.Requset;
 import com.server.web.response.Response;
 
@@ -11,9 +11,9 @@ public interface ServletInterface {
 	void doPost(Requset requset, Response response);
 
 	default void service(Requset requset, Response response) {
-		if(requset.getRequsetType() == RequsetEnumType.GET) {
+		if(requset.getRequsetMethod() == RequsetMethod.GET) {
 			doGet(requset, response);
-		}else if(requset.getRequsetType() == RequsetEnumType.POST) {
+		}else if(requset.getRequsetMethod() == RequsetMethod.POST) {
 			doPost(requset, response);
 		}
 	}

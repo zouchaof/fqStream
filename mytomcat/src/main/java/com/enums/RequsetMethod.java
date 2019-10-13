@@ -1,6 +1,6 @@
 package com.enums;
 
-public enum RequsetEnumType {
+public enum RequsetMethod {
 	
 	GET(0,"get"),
 	POST(1,"post");
@@ -25,7 +25,7 @@ public enum RequsetEnumType {
 		this.desc = desc;
 	}
 
-	private RequsetEnumType(Integer type, String desc) {
+	private RequsetMethod(Integer type, String desc) {
 		this.type = type;
 		this.desc = desc;
 	}
