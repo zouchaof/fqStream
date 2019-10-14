@@ -4,7 +4,7 @@ import com.server.web.request.Requset;
 import com.server.web.response.Response;
 import com.server.web.servlet.ServletInterface;
 
-public class MyHttp1Servlet implements ServletInterface{
+public class MyHttpServlet implements ServletInterface{
 
 	@Override
 	public void doGet(Requset requset, Response response) {

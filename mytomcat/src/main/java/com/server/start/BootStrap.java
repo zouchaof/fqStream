@@ -6,13 +6,21 @@ import java.util.Properties;
 import com.all.util.PropertiesUtil;
 import com.constant.info.HostInfo;
 import com.server.core.HttpServer;
-import com.server.core.impl.HttpServerCoreImpl;
+import com.server.core.impl.BioHttpServerImpl;
+import com.server.core.impl.NioHttpServerImpl;
 
 public class BootStrap {
 	
 	public static void main(String[] args) throws IOException {
 		setConfig();
-		HttpServer server = new HttpServerCoreImpl();
+		HttpServer server;
+		if ("bio".equals(System.getProperty("useIo"))) {
+			server = new BioHttpServerImpl();
+		}else if ("nio".equals(System.getProperty("useIo"))) {
+			server = new NioHttpServerImpl();
+		}else {
+			return;
+		}
 		server.serverStartUp(HostInfo.PORT);
 	}
 
