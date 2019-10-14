@@ -8,10 +8,5 @@ public class NioResponse extends AbstractResponse{
 		// TODO Auto-generated constructor stub
 	}
 
-	@Override
-	public void sendReturn() {
-		// TODO Auto-generated method stub
-		
-	}
 
 }

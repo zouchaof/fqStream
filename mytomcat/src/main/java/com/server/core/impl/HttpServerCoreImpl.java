@@ -32,7 +32,6 @@ public class HttpServerCoreImpl implements HttpServer {
 	}
 
 	private void acceptWait(int port) throws IOException {
-//		ServerSocket serverSocket = new ServerSocket(port, 1, InetAddress.getByName("127.0.0.1"));
 		ServerSocket serverSocket = new ServerSocket(port);
 		System.out.println("tomcat start...");
 		while (!shutdown) {
@@ -58,7 +57,6 @@ public class HttpServerCoreImpl implements HttpServer {
 				servletInterface = new MyHttp1Servlet();
 			}
 			servletInterface.service(requset, response);
-			response.sendReturn();
 			socket.close();
 		}
 		serverSocket.close();

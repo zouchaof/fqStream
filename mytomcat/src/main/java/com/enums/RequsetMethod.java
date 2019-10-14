@@ -2,8 +2,8 @@ package com.enums;
 
 public enum RequsetMethod {
 	
-	GET(0,"get"),
-	POST(1,"post");
+	GET(0,"GET"),
+	POST(1,"POST");
 	
 	private Integer type;
 	
@@ -30,4 +30,12 @@ public enum RequsetMethod {
 		this.desc = desc;
 	}
 	
+	public static RequsetMethod getRequsetMethodByname(String name) {
+		for(RequsetMethod method:RequsetMethod.values()) {
+			if(method.getDesc().equals(name)) {
+				return method;
+			}
+		}
+		return null;
+	}
 }

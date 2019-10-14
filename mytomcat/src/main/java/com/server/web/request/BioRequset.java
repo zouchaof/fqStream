@@ -15,18 +15,20 @@ public class BioRequset extends AbstractRequset {
 	private void parseInputStream() {
 		StringBuffer stringBuffer = new StringBuffer();
 		int i;
-		byte[] buffer = new byte[1024 * 2];
-		try {
-			i = getInputStream().read(buffer);
-		} catch (IOException e) {
-			e.printStackTrace();
-			i = -1;
-		}
-		for (int j = 0; j < i; j++) {
-			stringBuffer.append((char) buffer[j]);
-		}
+		int size = 1024 * 20;
+		byte[] buffer = new byte[size];
+		InputStream inputStream = getInputStream();
+		do {
+			try {
+				i = inputStream.read(buffer);
+			} catch (IOException e) {
+				e.printStackTrace();
+				i = -1;
+			}
+			stringBuffer.append(new String(buffer));
+		}while(i == size);
 		// 打印读取的socket中的内容
-		System.out.print(stringBuffer.toString());
+		System.out.println(stringBuffer.toString());
 		setUrl(parseUrL(stringBuffer.toString()));
 		setRequsetMethod(parseUMethod(stringBuffer.toString()));
 	}
@@ -34,8 +36,7 @@ public class BioRequset extends AbstractRequset {
 	private RequsetMethod parseUMethod(String requestString) {
 		int index = requestString.indexOf(' ');
 		if (index != -1) {
-//	            return requestString.substring(0,index);
-			System.out.println("method:" + requestString.substring(0, index));
+			return RequsetMethod.getRequsetMethodByname(requestString.substring(0, index));
 		}
 		return null;
 

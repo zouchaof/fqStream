@@ -1,7 +1,10 @@
 package com.server.web.response;
 
+import java.io.OutputStream;
+
 public interface Response {
 
-	void sendReturn();
+	OutputStream getOutputStream();
+
 	
 }
