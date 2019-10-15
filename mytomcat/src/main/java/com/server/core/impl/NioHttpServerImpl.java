@@ -145,10 +145,10 @@ public class NioHttpServerImpl implements HttpServer {
 		// 创建一个缓冲区
 		ByteBuffer buffer = ByteBuffer.allocate(1024);
 		SocketChannel channel = (SocketChannel) key.channel();
-		// 我们把通道的数据填入缓冲区
+		// 把通道的数据填入缓冲区
 		channel.read(buffer);
-		String request = new String(buffer.array()).trim();
-		System.out.println("客户端的请求内容" + request);
+		String requestStr = new String(buffer.array()).trim();
+		LOGGER.info("客户端的请求内容:{}", requestStr);
 		// 把我们的html内容返回给客户端
 
 		String outString = "HTTP/1.1 200 OK\n" + "Content-Type:text/html; charset=UTF-8\n\n" + "<html>\n" + "<head>\n"
