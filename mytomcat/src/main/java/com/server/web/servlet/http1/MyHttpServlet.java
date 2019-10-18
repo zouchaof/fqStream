@@ -13,7 +13,11 @@ public class MyHttpServlet implements ServletInterface{
 
 	@Override
 	public void doPost(Requset requset, Response response) {
+		response.getPrintWrite().println("my tomcat server test return!");
 		
+		System.out.println("*******************");
+		System.out.println(new String(response.getContentByte()));
+		System.out.println("*******************");
 	}
 
 }

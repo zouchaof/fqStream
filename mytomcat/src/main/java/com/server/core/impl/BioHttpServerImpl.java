@@ -1,9 +1,7 @@
 package com.server.core.impl;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -11,15 +9,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import com.constant.info.HostInfo;
 import com.server.core.HttpServer;
 import com.server.web.request.BioRequset;
-import com.server.web.request.NioRequset;
 import com.server.web.request.Requset;
 import com.server.web.response.BioResponse;
-import com.server.web.response.NioResponse;
 import com.server.web.response.Response;
-import com.server.web.servlet.ServletInterface;
 import com.server.web.servlet.http1.MyHttpServlet;
 
 public class BioHttpServerImpl implements HttpServer {
@@ -50,8 +44,11 @@ public class BioHttpServerImpl implements HttpServer {
 		public void run() {
 			try {
 				Requset requset = new BioRequset(socket.getInputStream());
-				Response response = new BioResponse(socket.getOutputStream());
+				Response response = new BioResponse();
 				new MyHttpServlet().service(requset, response);
+				response.getOutputStream().write(
+						((ByteArrayOutputStream)response.getOutputStream())
+						.toByteArray());
 			}catch (Exception e) {
 				e.printStackTrace();
 			}

@@ -1,12 +1,11 @@
 package com.server.core.impl;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -22,12 +21,9 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.constant.info.HostInfo;
 import com.server.core.HttpServer;
-import com.server.web.request.BioRequset;
 import com.server.web.request.NioRequset;
 import com.server.web.request.Requset;
-import com.server.web.response.BioResponse;
 import com.server.web.response.NioResponse;
 import com.server.web.response.Response;
 import com.server.web.servlet.ServletInterface;
@@ -53,44 +49,62 @@ public class NioHttpServerImpl implements HttpServer {
 		}
 	}
 
-	class ServerThread implements Runnable{
+	class ReadInfoThread implements Runnable{
 
-		private Socket socket;
-		public ServerThread(Socket socket) {
-			this.socket = socket;
+		private SelectionKey selectionKey;
+		
+		public ReadInfoThread(SelectionKey key) {
+			this.selectionKey = key;
+		}
+
+		@Override
+		public void run() {
+			SocketChannel channel = null;
+			try {
+				// 创建一个缓冲区
+				ByteBuffer buffer = ByteBuffer.allocate(1024);
+				channel = (SocketChannel) selectionKey.channel();
+				// 把通道的数据填入缓冲区
+				channel.read(buffer);
+				Requset requset = new NioRequset(buffer);
+				Response response = new NioResponse();
+				new MyHttpServlet().service(requset, response);
+				ByteBuffer outbuffer = ByteBuffer.wrap(
+						((ByteArrayOutputStream)response.getOutputStream())
+						.toByteArray());
+				System.out.println(new String(outbuffer.array()));
+				channel.write(outbuffer);
+			}catch (Exception e) {
+				e.printStackTrace();
+			}finally {
+				if(channel != null) {
+					try {
+						channel.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			
+		}
+		
+	}
+	class AcceptWaitThread implements Runnable{
+
+		private Selector selector;
+		private SelectionKey selectionKey;
+		public AcceptWaitThread(Selector selector, SelectionKey key) {
+			this.selectionKey = key;
+			this.selector = selector;
 		}
 		@Override
 		public void run() {
 			try {
-				InputStream inputStream = socket.getInputStream();
-				OutputStream outputStream = socket.getOutputStream();
-				Requset requset;
-				Response response;
-				if ("bio".equals(System.getProperty("useIo"))) {
-					requset = new BioRequset(inputStream);
-					response = new BioResponse(outputStream);
-				} else if ("nio".equals(System.getProperty("useIo"))) {
-					requset = new NioRequset(inputStream);
-					response = new NioResponse(outputStream);
-				} else {
-					requset = new BioRequset(inputStream);
-					response = new BioResponse(outputStream);
-				}
-				ServletInterface servletInterface;
-				if ("http2".equals(System.getProperty("httpType"))) {
-					throw new RuntimeException("暂不支持http2服务器");
-				} else {
-					servletInterface = new MyHttpServlet();
-				}
-				servletInterface.service(requset, response);
+				ServerSocketChannel ssc = (ServerSocketChannel) selectionKey.channel();
+				SocketChannel sc = ssc.accept();
+				sc.configureBlocking(false);
+				sc.register(selector, SelectionKey.OP_READ);// 注册读事件
 			}catch (Exception e) {
-				e.printStackTrace();
-			}
-			try {
-				if(socket != null) {
-					socket.close();
-				}
-			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
@@ -129,9 +143,9 @@ public class NioHttpServerImpl implements HttpServer {
 						continue;
 					}
 					if(key.isAcceptable()) {//为连接模式（阻塞状态），等待连接
-						this.acceptWait(selector, key);
+						new AcceptWaitThread(selector, key).run();;
 					}else if(key.isReadable()) {
-						this.readInfo(key);
+						new ReadInfoThread(key).run();
 					}
 				}
 			}
@@ -139,32 +153,6 @@ public class NioHttpServerImpl implements HttpServer {
 		}
 		executorService.shutdown();
 		serverSocketChannel.close();
-	}
-
-	private void readInfo(SelectionKey key) throws IOException {
-		// 创建一个缓冲区
-		ByteBuffer buffer = ByteBuffer.allocate(1024);
-		SocketChannel channel = (SocketChannel) key.channel();
-		// 把通道的数据填入缓冲区
-		channel.read(buffer);
-		String requestStr = new String(buffer.array()).trim();
-		LOGGER.info("客户端的请求内容:{}", requestStr);
-		// 把我们的html内容返回给客户端
-
-		String outString = "HTTP/1.1 200 OK\n" + "Content-Type:text/html; charset=UTF-8\n\n" + "<html>\n" + "<head>\n"
-				+ "<title>first page</title>\n" + "</head>\n" + "<body>\n" + "hello fomcat\n" + "</body>\n" + "</html>";
-
-		ByteBuffer outbuffer = ByteBuffer.wrap(outString.getBytes());
-		channel.write(outbuffer);
-		channel.close();
-
-	}
-
-	private void acceptWait(Selector selector, SelectionKey key) throws IOException {
-		ServerSocketChannel ssc = (ServerSocketChannel) key.channel();
-		SocketChannel sc = ssc.accept();
-		sc.configureBlocking(false);
-		sc.register(selector, SelectionKey.OP_READ);// 注册读事件
 	}
 
 	@Override

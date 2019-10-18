@@ -1,7 +1,6 @@
 package com.server.web.servlet;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Date;
 
 import com.constant.info.HttpServerConstant;
@@ -26,27 +25,17 @@ public interface ServletInterface {
 	
 	//这里只处理返回文字信息
 	default void sendReturn(Response response) {
-		String returnMessage = "my tomcat test return~";
-		OutputStream outputStream = null;
 		try {
-			outputStream = response.getOutputStream();
-			outputStream.write(bulidHeader(returnMessage).getBytes());
+			bulidHeader(response);
 		} catch (IOException e) {
 			e.printStackTrace();
-		} finally {
-			if (outputStream != null) {
-				try {
-					outputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 	
-	default String bulidHeader(String context) {
+	default void bulidHeader(Response response) throws IOException {
+		byte[] old = response.getContentByte();
 		StringBuilder contextText = new StringBuilder();
-		contextText.append(context);
+		contextText.append(new String(old));
 
 		StringBuilder sb = new StringBuilder();
 		/* 通用头域begin */
@@ -58,7 +47,9 @@ public interface ServletInterface {
 		sb.append("Content-Length:").append(contextText.toString().getBytes().length).append(HttpServerConstant.ENTER);
 		/* 通用头域end */
 		sb.append(HttpServerConstant.ENTER);// 空一行
-		sb.append(contextText);// 正文部分
-		return sb.toString();
+		
+		response.getOutputStream().write(sb.toString().getBytes());
+		response.getOutputStream().write(old);
+		response.getOutputStream().close();
 	}
 }

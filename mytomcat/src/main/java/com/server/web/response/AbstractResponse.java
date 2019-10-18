@@ -1,21 +1,27 @@
 package com.server.web.response;
 
+import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.util.Date;
+import java.io.PrintWriter;
 
-import com.constant.info.HttpServerConstant;
 
 public abstract class AbstractResponse implements Response {
 
-	private OutputStream outputStream;
+	private OutputStream outputStream = new ByteArrayOutputStream();
 
+	private ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024);
+	
 	@Override
 	public OutputStream getOutputStream() {
 		return outputStream;
 	}
 
-	public void setOutputStream(OutputStream outputStream) {
-		this.outputStream = outputStream;
+	@Override
+	public PrintWriter getPrintWrite() {
+		return new PrintWriter(byteArrayOutputStream);
 	}
-
+	
+	public byte[] getContentByte() {byteArrayOutputStream.reset();
+		return byteArrayOutputStream.toByteArray();
+	}
 }
