@@ -46,7 +46,7 @@ public class BioHttpServerImpl implements HttpServer {
 				Requset requset = new BioRequset(socket.getInputStream());
 				Response response = new BioResponse();
 				new MyHttpServlet().service(requset, response);
-				response.getOutputStream().write(
+				socket.getOutputStream().write(
 						((ByteArrayOutputStream)response.getOutputStream())
 						.toByteArray());
 			}catch (Exception e) {

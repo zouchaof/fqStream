@@ -1,10 +1,7 @@
 package com.server.core.impl;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -26,7 +23,6 @@ import com.server.web.request.NioRequset;
 import com.server.web.request.Requset;
 import com.server.web.response.NioResponse;
 import com.server.web.response.Response;
-import com.server.web.servlet.ServletInterface;
 import com.server.web.servlet.http1.MyHttpServlet;
 
 public class NioHttpServerImpl implements HttpServer {
@@ -72,7 +68,7 @@ public class NioHttpServerImpl implements HttpServer {
 				ByteBuffer outbuffer = ByteBuffer.wrap(
 						((ByteArrayOutputStream)response.getOutputStream())
 						.toByteArray());
-				System.out.println(new String(outbuffer.array()));
+				LOGGER.info("server return info:{}", new String(outbuffer.array()));
 				channel.write(outbuffer);
 			}catch (Exception e) {
 				e.printStackTrace();
@@ -86,27 +82,6 @@ public class NioHttpServerImpl implements HttpServer {
 				}
 			}
 			
-		}
-		
-	}
-	class AcceptWaitThread implements Runnable{
-
-		private Selector selector;
-		private SelectionKey selectionKey;
-		public AcceptWaitThread(Selector selector, SelectionKey key) {
-			this.selectionKey = key;
-			this.selector = selector;
-		}
-		@Override
-		public void run() {
-			try {
-				ServerSocketChannel ssc = (ServerSocketChannel) selectionKey.channel();
-				SocketChannel sc = ssc.accept();
-				sc.configureBlocking(false);
-				sc.register(selector, SelectionKey.OP_READ);// 注册读事件
-			}catch (Exception e) {
-				e.printStackTrace();
-			}
 		}
 		
 	}
@@ -143,9 +118,12 @@ public class NioHttpServerImpl implements HttpServer {
 						continue;
 					}
 					if(key.isAcceptable()) {//为连接模式（阻塞状态），等待连接
-						new AcceptWaitThread(selector, key).run();;
+						ServerSocketChannel ssc = (ServerSocketChannel) key.channel();
+						SocketChannel sc = ssc.accept();
+						sc.configureBlocking(false);
+						sc.register(selector, SelectionKey.OP_READ);// 注册读事件
 					}else if(key.isReadable()) {
-						new ReadInfoThread(key).run();
+						executorService.submit(new ReadInfoThread(key));
 					}
 				}
 			}

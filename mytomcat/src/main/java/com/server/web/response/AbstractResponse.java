@@ -2,7 +2,6 @@ package com.server.web.response;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 
 
 public abstract class AbstractResponse implements Response {
@@ -15,13 +14,13 @@ public abstract class AbstractResponse implements Response {
 	public OutputStream getOutputStream() {
 		return outputStream;
 	}
-
-	@Override
-	public PrintWriter getPrintWrite() {
-		return new PrintWriter(byteArrayOutputStream);
-	}
 	
-	public byte[] getContentByte() {byteArrayOutputStream.reset();
+	@Override
+	public ByteArrayOutputStream getWrite() {
+		return byteArrayOutputStream;
+	}
+
+	public byte[] getContentByte() {
 		return byteArrayOutputStream.toByteArray();
 	}
 }

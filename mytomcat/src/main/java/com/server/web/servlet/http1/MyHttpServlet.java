@@ -1,5 +1,7 @@
 package com.server.web.servlet.http1;
 
+import java.io.IOException;
+
 import com.server.web.request.Requset;
 import com.server.web.response.Response;
 import com.server.web.servlet.ServletInterface;
@@ -13,11 +15,12 @@ public class MyHttpServlet implements ServletInterface{
 
 	@Override
 	public void doPost(Requset requset, Response response) {
-		response.getPrintWrite().println("my tomcat server test return!");
-		
-		System.out.println("*******************");
-		System.out.println(new String(response.getContentByte()));
-		System.out.println("*******************");
+		try {
+			if("/favicon.ico".equals(requset.getUrl())) return;
+			response.getWrite().write("my tomcat server test return!".getBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
