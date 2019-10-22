@@ -22,6 +22,7 @@
         <logback-ext-spring.version>0.1.4</logback-ext-spring.version>
         <slf4j.version>1.7.25</slf4j.version>
         <mockito.version>1.10.19</mockito.version>
+        <guava.version>20.0</guava.version>
   	</properties>
   	
   	<dependencyManagement>
@@ -35,6 +36,11 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>

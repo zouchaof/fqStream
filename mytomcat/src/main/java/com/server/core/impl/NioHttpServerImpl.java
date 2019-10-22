@@ -8,13 +8,13 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,11 +45,13 @@ public class NioHttpServerImpl implements HttpServer {
 		}
 	}
 
-	class ReadInfoThread implements Runnable{
+	class AcceptExecutor implements Runnable{
 
 		private SelectionKey selectionKey;
-		
-		public ReadInfoThread(SelectionKey key) {
+		private Selector selector;
+
+		public AcceptExecutor(Selector selector, SelectionKey key) {
+			this.selector = selector;
 			this.selectionKey = key;
 		}
 
@@ -57,19 +59,36 @@ public class NioHttpServerImpl implements HttpServer {
 		public void run() {
 			SocketChannel channel = null;
 			try {
-				// 创建一个缓冲区
-				ByteBuffer buffer = ByteBuffer.allocate(1024);
-				channel = (SocketChannel) selectionKey.channel();
-				// 把通道的数据填入缓冲区
-				channel.read(buffer);
-				Requset requset = new NioRequset(buffer);
-				Response response = new NioResponse();
-				new MyHttpServlet().service(requset, response);
-				ByteBuffer outbuffer = ByteBuffer.wrap(
-						((ByteArrayOutputStream)response.getOutputStream())
-						.toByteArray());
-				LOGGER.info("server return info:{}", new String(outbuffer.array()));
-				channel.write(outbuffer);
+				if(selectionKey.isAcceptable()) {//为连接模式（阻塞状态），等待连接
+					LOGGER.info("thread accept start....");
+					ServerSocketChannel ssc = (ServerSocketChannel) selectionKey.channel();
+					SocketChannel sc = ssc.accept();
+					sc.configureBlocking(false);
+					sc.register(selector, SelectionKey.OP_READ);// 注册读事件
+				}else if(selectionKey.isReadable()) {
+					LOGGER.info("thread read start....");
+					// 创建一个缓冲区
+					ByteBuffer buffer = ByteBuffer.allocate(100);
+					channel = (SocketChannel) selectionKey.channel();
+					List<byte[]> byteList = new ArrayList<>();
+					// 把通道的数据填入缓冲区
+					while (channel.read(buffer) > 0) {
+						byte[] aByte = new byte[buffer.position()];
+						buffer.flip();
+						System.arraycopy(buffer.array(), 0, aByte, 0, aByte.length);
+						byteList.add(aByte);
+						buffer.clear();
+					}
+					byte[] bytes = this.transformByteList(byteList);
+					Requset requset = new NioRequset(bytes);
+					Response response = new NioResponse();
+					new MyHttpServlet().service(requset, response);
+					ByteBuffer outbuffer = ByteBuffer.wrap(
+							((ByteArrayOutputStream) response.getOutputStream())
+									.toByteArray());
+					LOGGER.info("server return info:{}", new String(outbuffer.array()));
+					channel.write(outbuffer);
+				}
 			}catch (Exception e) {
 				e.printStackTrace();
 			}finally {
@@ -80,12 +99,28 @@ public class NioHttpServerImpl implements HttpServer {
 						e.printStackTrace();
 					}
 				}
+				dealWithKey.remove(this.selectionKey);
+				LOGGER.info("thread end....");
 			}
 			
 		}
-		
+		private byte[] transformByteList(List<byte[]> byteList) {
+			int length = 0;
+			for(byte[] bytes : byteList){
+				length += bytes.length;
+			}
+			int step = 0;
+			byte[] returnBytes = new byte[length];
+			for(byte[] bytes : byteList){
+				System.arraycopy(bytes, 0, returnBytes, step, bytes.length);
+				step += bytes.length;
+			}
+			return returnBytes;
+		}
 	}
-	
+
+
+
 	private void initSelector(int port) throws IOException {
 		LOGGER.info("tomcat(nio) start...");
 		//NIO的处理是基于Channel控制的，所以有一个Selector就是负责管理所有的Channel
@@ -108,7 +143,7 @@ public class NioHttpServerImpl implements HttpServer {
 		while (!shutdown) {
 			//NIO采用的是轮询模式，每当发现有用户连接的时候就需要启动一个线程（线程池管理）
 			int keySelect = 0; // 接收轮询状态
-			while((keySelect = selector.select()) > 0 ) {
+			while(!shutdown && (keySelect = selector.select()) > 0 ) {
 				Set<SelectionKey> selectionKeys = selector.selectedKeys();
 				Iterator<SelectionKey> iterator = selectionKeys.iterator();
 				while(iterator.hasNext()) {
@@ -117,21 +152,21 @@ public class NioHttpServerImpl implements HttpServer {
 					if(!key.isValid()) {
 						continue;
 					}
-					if(key.isAcceptable()) {//为连接模式（阻塞状态），等待连接
-						ServerSocketChannel ssc = (ServerSocketChannel) key.channel();
-						SocketChannel sc = ssc.accept();
-						sc.configureBlocking(false);
-						sc.register(selector, SelectionKey.OP_READ);// 注册读事件
-					}else if(key.isReadable()) {
-						executorService.submit(new ReadInfoThread(key));
+					if(dealWithKey.contains(key)){
+						continue;
+					}else{
+						//应该有最大值的，这里不做了，线程池执行线程4+10个等待队列-》即这个Set最大只能14个，不然会线程池会拒绝该任务，使得其永远无法处理
+						dealWithKey.add(key);
+						executorService.submit(new AcceptExecutor(selector, key));
 					}
 				}
 			}
-			
 		}
 		executorService.shutdown();
 		serverSocketChannel.close();
 	}
+
+	private Set<SelectionKey> dealWithKey = Sets.newConcurrentHashSet();
 
 	@Override
 	public void serverShutdown() {

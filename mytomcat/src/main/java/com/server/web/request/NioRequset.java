@@ -6,9 +6,9 @@ import java.nio.ByteBuffer;
 public class NioRequset extends AbstractRequset {
 
 
-	public NioRequset(ByteBuffer buffer) {
-		setInputStream(new ByteArrayInputStream(buffer.array()));
-		parseRequestStr(new String(buffer.array()));
+	public NioRequset(byte[] bytes) {
+		setInputStream(new ByteArrayInputStream(bytes));
+		parseRequestStr(new String(bytes));
 	}
 
 	
