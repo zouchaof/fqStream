@@ -65,7 +65,7 @@ public class BioHttpServerImpl implements HttpServer {
 	
 	private void acceptWait(int port) throws IOException {
 		ServerSocket serverSocket = new ServerSocket(port);
-		System.out.println("tomcat start...");
+		System.out.println("tomcat(bio) start...");
 		while (!shutdown) {
 			Socket socket = serverSocket.accept();
 			/**

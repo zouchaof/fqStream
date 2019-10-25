@@ -15,7 +15,6 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +95,6 @@ public class NioHttpServerImpl implements HttpServer {
 						e.printStackTrace();
 					}
 				}
-				dealWithKey.remove(this.selectionKey);
 				LOGGER.info("【{}】thread end....", selectionKey);
 			}
 
@@ -167,8 +165,6 @@ public class NioHttpServerImpl implements HttpServer {
 		executorService.shutdown();
 		serverSocketChannel.close();
 	}
-
-	private Set<SelectionKey> dealWithKey = Sets.newConcurrentHashSet();
 
 	@Override
 	public void serverShutdown() {
