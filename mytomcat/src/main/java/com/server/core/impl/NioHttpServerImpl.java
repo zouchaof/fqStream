@@ -11,6 +11,7 @@ import java.nio.channels.SocketChannel;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +35,14 @@ public class NioHttpServerImpl implements HttpServer {
 	/**
 	 * 核心线程4，最大线程4，空闲线程（这里4-4=0个空闲线程）的存活时间0ms,等待队列10
 	 */
-	private ExecutorService executorService = new ThreadPoolExecutor(4, 4, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(10));
+	private ExecutorService executorService = new ThreadPoolExecutor(4, 4, 1000L, TimeUnit.MILLISECONDS, 
+			new LinkedBlockingQueue<Runnable>(10), new RejectedExecutionHandler() {
+				
+				@Override
+				public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+					//什么都不做
+				}
+			});
 	
 	@Override
 	public void serverStartUp(Integer port) {
@@ -47,62 +55,51 @@ public class NioHttpServerImpl implements HttpServer {
 
 	class AcceptExecutor implements Runnable{
 
+		private SocketChannel socketChannel;
 		private SelectionKey selectionKey;
-		private Selector selector;
 
-		public AcceptExecutor(Selector selector, SelectionKey key) {
-			this.selector = selector;
+		public AcceptExecutor(SocketChannel socketChannel, SelectionKey key) {
+			this.socketChannel = socketChannel;
 			this.selectionKey = key;
 		}
 
 		@Override
 		public void run() {
-			SocketChannel channel = null;
 			try {
-				if(selectionKey.isAcceptable()) {//为连接模式（阻塞状态），等待连接
-					LOGGER.info("thread accept start....");
-					ServerSocketChannel ssc = (ServerSocketChannel) selectionKey.channel();
-					SocketChannel sc = ssc.accept();
-					sc.configureBlocking(false);
-					sc.register(selector, SelectionKey.OP_READ);// 注册读事件
-				}else if(selectionKey.isReadable()) {
-					LOGGER.info("thread read start....");
-					// 创建一个缓冲区
-					ByteBuffer buffer = ByteBuffer.allocate(100);
-					channel = (SocketChannel) selectionKey.channel();
-					List<byte[]> byteList = new ArrayList<>();
-					// 把通道的数据填入缓冲区
-					while (channel.read(buffer) > 0) {
-						byte[] aByte = new byte[buffer.position()];
-						buffer.flip();
-						System.arraycopy(buffer.array(), 0, aByte, 0, aByte.length);
-						byteList.add(aByte);
-						buffer.clear();
-					}
-					byte[] bytes = this.transformByteList(byteList);
-					Requset requset = new NioRequset(bytes);
-					Response response = new NioResponse();
-					new MyHttpServlet().service(requset, response);
-					ByteBuffer outbuffer = ByteBuffer.wrap(
-							((ByteArrayOutputStream) response.getOutputStream())
-									.toByteArray());
-					LOGGER.info("server return info:{}", new String(outbuffer.array()));
-					channel.write(outbuffer);
+				LOGGER.info("【{}】thread read start....", selectionKey);
+				// 创建一个缓冲区
+				ByteBuffer buffer = ByteBuffer.allocate(100);
+				List<byte[]> byteList = new ArrayList<>();
+				// 把通道的数据填入缓冲区
+				while (socketChannel.read(buffer) > 0) {
+					byte[] aByte = new byte[buffer.position()];
+					buffer.flip();
+					System.arraycopy(buffer.array(), 0, aByte, 0, aByte.length);
+					byteList.add(aByte);
+					buffer.clear();
 				}
-			}catch (Exception e) {
+				byte[] bytes = this.transformByteList(byteList);
+				Requset requset = new NioRequset(bytes);
+				Response response = new NioResponse();
+				new MyHttpServlet().service(requset, response);
+				ByteBuffer outbuffer = ByteBuffer
+						.wrap(((ByteArrayOutputStream) response.getOutputStream()).toByteArray());
+				LOGGER.info("server return info:{}", new String(outbuffer.array()));
+				socketChannel.write(outbuffer);
+			} catch (Exception e) {
 				e.printStackTrace();
-			}finally {
-				if(channel != null) {
+			} finally {
+				if (socketChannel != null) {
 					try {
-						channel.close();
+						socketChannel.close();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
 				}
 				dealWithKey.remove(this.selectionKey);
-				LOGGER.info("thread end....");
+				LOGGER.info("【{}】thread end....", selectionKey);
 			}
-			
+
 		}
 		private byte[] transformByteList(List<byte[]> byteList) {
 			int length = 0;
@@ -152,12 +149,17 @@ public class NioHttpServerImpl implements HttpServer {
 					if(!key.isValid()) {
 						continue;
 					}
-					if(dealWithKey.contains(key)){
-						continue;
-					}else{
-						//应该有最大值的，这里不做了，线程池执行线程4+10个等待队列-》即这个Set最大只能14个，不然会线程池会拒绝该任务，使得其永远无法处理
-						dealWithKey.add(key);
-						executorService.submit(new AcceptExecutor(selector, key));
+					if(key.isAcceptable()) {//为连接模式（阻塞状态），等待连接
+						ServerSocketChannel ssc = (ServerSocketChannel) key.channel();
+						SocketChannel sc = ssc.accept();
+						sc.configureBlocking(false);
+						sc.register(selector, SelectionKey.OP_READ);// 注册读事件
+					}else if(key.isReadable()) {
+						//有数据请求的连接
+                        SocketChannel socketChannel = (SocketChannel) key.channel();
+                        //处理过程中，先取消selector对应连接的注册，避免重复
+                        key.cancel();
+                        executorService.submit(new AcceptExecutor(socketChannel, key));
 					}
 				}
 			}
