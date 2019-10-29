@@ -6,6 +6,7 @@ import java.util.Properties;
 import com.all.util.PropertiesUtil;
 import com.constant.info.HostInfo;
 import com.server.core.HttpServer;
+import com.server.core.impl.AioHttpServerImpl;
 import com.server.core.impl.BioHttpServerImpl;
 import com.server.core.impl.NioHttpServerImpl;
 
@@ -18,6 +19,8 @@ public class BootStrap {
 			server = new BioHttpServerImpl();
 		}else if ("nio".equals(System.getProperty("useIo"))) {
 			server = new NioHttpServerImpl();
+		}else if ("aio".equals(System.getProperty("useIo"))) {
+			server = new AioHttpServerImpl();
 		}else {
 			return;
 		}
