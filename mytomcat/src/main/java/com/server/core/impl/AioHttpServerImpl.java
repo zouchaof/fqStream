@@ -1,26 +1,22 @@
 package com.server.core.impl;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.server.core.HttpServer;
 import com.server.web.request.NioRequset;
 import com.server.web.request.Requset;
 import com.server.web.response.NioResponse;
 import com.server.web.response.Response;
 import com.server.web.servlet.http1.MyHttpServlet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.constant.info.HostInfo;
-import com.server.core.HttpServer;
 
 public class AioHttpServerImpl implements HttpServer {
 
@@ -28,20 +24,21 @@ public class AioHttpServerImpl implements HttpServer {
 
 	private AsynchronousServerSocketChannel serverSocketChannel;
 
-	private boolean shutdown = false;
+	private CountDownLatch latch;
 
 	@Override
 	public void serverShutdown() {
-		this.shutdown = true;
+		latch.countDown();
 	}
 
 	@Override
 	public void serverStartUp(Integer port) {
 		LOGGER.info("tomcat(aio) start...");
 		try {
-			serverSocketChannel = AsynchronousServerSocketChannel.open().bind(new InetSocketAddress(port));
+			this.latch = new CountDownLatch(1);
+			this.serverSocketChannel = AsynchronousServerSocketChannel.open().bind(new InetSocketAddress(port));
 			serverSocketChannel.accept(this, new AcceptHandle());
-			Thread.sleep(100000);
+			this.latch.await();
 		} catch (Exception e) {
 			LOGGER.error("aio start error", e);
 		}
@@ -53,10 +50,9 @@ public class AioHttpServerImpl implements HttpServer {
 		@Override
 		public void completed(AsynchronousSocketChannel result, HttpServer attachment) {
 			try {
-				result.setOption(StandardSocketOptions.TCP_NODELAY, true);
 				serverSocketChannel.accept(attachment, this);
 				handle(result);
-			} catch (IOException e) {
+			} catch (Exception e) {
 				LOGGER.error("aio completed error", e);
 			}
 		}

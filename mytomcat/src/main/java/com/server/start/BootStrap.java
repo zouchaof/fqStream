@@ -24,9 +24,17 @@ public class BootStrap {
 		}else {
 			return;
 		}
-		server.serverStartUp(HostInfo.PORT);
+//		server.serverStartUp(HostInfo.PORT);
+		new Thread(new StartServeThread(server)).start();//用线程启动，测试关闭功能
+//		try {
+//			Thread.sleep(1000*5);
+//			server.serverShutdown();//测试关闭
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+		
 	}
-
+	
 	private static void setConfig() {
 		Properties p = PropertiesUtil.getConfig("config.properties");
 		for(Object s : p.keySet()) {
@@ -34,4 +42,17 @@ public class BootStrap {
 		}
 	}
 	
+}
+class StartServeThread implements Runnable{
+	
+	private HttpServer server;
+	
+	public StartServeThread(HttpServer server) {
+		this.server = server;
+	}
+
+	@Override
+	public void run() {
+		server.serverStartUp(HostInfo.PORT);
+	}
 }
