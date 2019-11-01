@@ -7,9 +7,7 @@ public interface Response {
 
 	OutputStream getOutputStream();
 
-	default String getContentType() {
-		return "application/x-www-form-urlencoded; charset=UTF-8;";
-	}
+	String getContentType();
 	
 	ByteArrayOutputStream getWrite();
 	

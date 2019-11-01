@@ -16,11 +16,13 @@ public class MyHttpServlet implements ServletInterface{
 	@Override
 	public void doPost(Requset requset, Response response) {
 		try {
-			if("/favicon.ico".equals(requset.getUrl())) return;
-			response.getWrite().write("my tomcat server test return!".getBytes());
+			if("/favicon.ico".equals(requset.getUrl())) {
+				response.getWrite().write("<html>404</html>".getBytes());
+			}else {
+				response.getWrite().write("my tomcat server test return!".getBytes());
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-
 }

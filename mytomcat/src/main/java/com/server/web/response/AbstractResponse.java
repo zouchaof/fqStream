@@ -10,6 +10,8 @@ public abstract class AbstractResponse implements Response {
 
 	private ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024);
 	
+	private String contentType;
+	
 	@Override
 	public OutputStream getOutputStream() {
 		return outputStream;
@@ -23,4 +25,18 @@ public abstract class AbstractResponse implements Response {
 	public byte[] getContentByte() {
 		return byteArrayOutputStream.toByteArray();
 	}
+
+	@Override
+	public String getContentType() {
+		if(contentType != null && !"".equals(contentType.trim())) {
+			return contentType;
+		}
+		return "application/x-www-form-urlencoded; charset=UTF-8;";
+	}
+
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+	}
+	
+	
 }

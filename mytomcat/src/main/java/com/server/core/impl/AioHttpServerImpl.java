@@ -31,6 +31,9 @@ public class AioHttpServerImpl implements HttpServer {
 		latch.countDown();
 	}
 
+	/**
+	 * start
+	 */
 	@Override
 	public void serverStartUp(Integer port) {
 		LOGGER.info("tomcat(aio) start...");
@@ -45,12 +48,18 @@ public class AioHttpServerImpl implements HttpServer {
 		
 	}
 	
+	/**
+	 * accept
+	 * @author zouchao
+	 *
+	 */
 	private class AcceptHandle implements CompletionHandler<AsynchronousSocketChannel, HttpServer>{
 
 		@Override
 		public void completed(AsynchronousSocketChannel result, HttpServer attachment) {
 			try {
 				serverSocketChannel.accept(attachment, this);
+				LOGGER.info("one connect... ");
 				handle(result);
 			} catch (Exception e) {
 				LOGGER.error("aio completed error", e);
@@ -59,14 +68,8 @@ public class AioHttpServerImpl implements HttpServer {
 
 		private void handle(AsynchronousSocketChannel result) {
 			ByteBuffer buffer = ByteBuffer.allocate(10*1024);
-			result.read(buffer);
-			Requset requset = new NioRequset(buffer.array());
-			Response response = new NioResponse();
-			new MyHttpServlet().service(requset, response);
-			ByteBuffer outbuffer = ByteBuffer
-					.wrap(((ByteArrayOutputStream) response.getOutputStream()).toByteArray());
-			LOGGER.info("server return info:{}", new String(outbuffer.array()));
-			result.write(outbuffer);
+			result.read(buffer, buffer, new AioReadHandle(result));
+			
 		}
 
 		@Override
@@ -74,10 +77,39 @@ public class AioHttpServerImpl implements HttpServer {
 			// TODO Auto-generated method stub
 			
 		}
-
-		
 	}
 	
-	
+	/**
+	 * read
+	 * @author zouchao
+	 *
+	 */
+	private class AioReadHandle implements CompletionHandler<Integer, ByteBuffer>{
+
+		private AsynchronousSocketChannel socketChannel;
+		
+		public AioReadHandle(AsynchronousSocketChannel socketChannel) {
+			this.socketChannel = socketChannel;
+		}
+
+		@Override
+		public void completed(Integer result, ByteBuffer buffer) {
+			buffer.flip();
+			Requset requset = new NioRequset(buffer.array());
+			Response response = new NioResponse();
+			new MyHttpServlet().service(requset, response);
+			ByteBuffer outbuffer = ByteBuffer
+					.wrap(((ByteArrayOutputStream) response.getOutputStream()).toByteArray());
+			LOGGER.info("server return info:{}", new String(outbuffer.array()));
+			socketChannel.write(outbuffer);
+		}
+
+		@Override
+		public void failed(Throwable exc, ByteBuffer attachment) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
 	
 }
