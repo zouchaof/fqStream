@@ -23,10 +23,16 @@
         <slf4j.version>1.7.25</slf4j.version>
         <mockito.version>1.10.19</mockito.version>
         <guava.version>20.0</guava.version>
+        <lombok.version>1.16.10</lombok.version>
   	</properties>
   	
   	<dependencyManagement>
         <dependencies>
+        	<dependency>
+	            <groupId>org.projectlombok</groupId>
+	            <artifactId>lombok</artifactId>
+	            <version>${lombok.version}</version>
+	 		</dependency>
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>fastjson</artifactId>
