@@ -1,5 +1,16 @@
 package com.lambda.dto;
 
-public class People {
+import lombok.Data;
 
+@Data
+public class People {
+	private String name;
+
+	public People() {
+	}
+	
+	public People(String name) {
+		this.name = name;
+	}
+	
 }

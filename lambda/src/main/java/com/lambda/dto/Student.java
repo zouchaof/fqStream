@@ -13,10 +13,5 @@ public class Student {
 	
 	private String sex;
 	
-	public static void main(String[] args) {
-		Student student = new Student();
-		
-		System.out.println(student.getAge());
-	}
-	
+	private GoodStudent goodStudent;
 }
