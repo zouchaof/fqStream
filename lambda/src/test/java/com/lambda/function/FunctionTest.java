@@ -1,10 +1,12 @@
 package com.lambda.function;
 
 import java.util.Comparator;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import org.junit.Test;
 
@@ -21,11 +23,13 @@ public class FunctionTest {
 	}
 	
 	/**
-	 * ***fun***    方法						功能			参数		返回类型
-	 * Predicate 	boolean test(T t)		判断真假		T		boolean
-	 * Consumer  	void accept(T t) 		消费消息 		T 		void 
-	 * Function		R apply(T t)			由T到R		T		R
-	 * Supplier		T get()					生产消息		none	T
+	 * ***fun***      方法					功能			参数		返回类型
+	 * Predicate 	  boolean test(T t)		判断真假		T		boolean
+	 * Consumer  	  void accept(T t) 		消费消息 		T 		void 
+	 * Function		  R apply(T t)			由T到R		T		R
+	 * Supplier		  T get()				生产消息		none	T
+	 * UnaryOperator  T apply(T t)			一元操作		T		T
+	 * BinaryOperator T apply(T t, T t2)	二元操作		T, T	T
 	 */
 	@Test
 	public void test2() {
@@ -60,16 +64,16 @@ public class FunctionTest {
 		/** Supplier test **/
 		Supplier<Integer> supplier = () -> student.getAge();
 		System.out.println(supplier.get());
+		
+		/** UnaryOperator test **/
+		UnaryOperator<Integer> operator = i -> i+10;
+		System.out.println(operator.apply(10));
+		
+		/** BinaryOperator test **/
+		BinaryOperator<Integer> binaryOperator = (x, y) -> Math.max(x, y);
+		System.out.println(binaryOperator.apply(10, 11));
 	}
 	
-	/**
-	 * 
-	 */
-	@Test
-	public void test3() {
-//		Comparator<T>
-	}
-
 	
 	
 }
