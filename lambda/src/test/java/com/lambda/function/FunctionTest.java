@@ -25,7 +25,7 @@ public class FunctionTest {
 	/**
 	 * ***fun***      方法					功能			参数		返回类型
 	 * Predicate 	  boolean test(T t)		判断真假		T		boolean
-	 * Consumer  	  void accept(T t) 		消费消息 		T 		void 
+	 * Consumer  	  void accept(T t) 		消费消息 		T 		void
 	 * Function		  R apply(T t)			由T到R		T		R
 	 * Supplier		  T get()				生产消息		none	T
 	 * UnaryOperator  T apply(T t)			一元操作		T		T
@@ -38,7 +38,7 @@ public class FunctionTest {
 		Predicate<Integer> predicate = x -> x>1;
 		boolean b = predicate.test(2);
 		System.out.println("Predicate test return : " + b);
-		
+
 		/** Function test **/
 		Consumer<String> consumer = x -> System.out.println(x);
 		consumer.accept("consumer test");
