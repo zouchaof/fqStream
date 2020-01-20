@@ -9,6 +9,7 @@
   	<url>http://www.example.com</url>
   	<modules>
   		<module>mytomcat</module>
+  		<module>lambda</module>
   	</modules>
   
   	<properties>
@@ -23,11 +24,17 @@
         <slf4j.version>1.7.25</slf4j.version>
         <mockito.version>1.10.19</mockito.version>
         <guava.version>20.0</guava.version>
-        <lombok.version>1.16.10</lombok.version>
+        <lombok.version>1.16.22</lombok.version>
+        <netty.version>4.1.31.Final</netty.version>
   	</properties>
   	
   	<dependencyManagement>
         <dependencies>
+        	<dependency>
+	            <groupId>io.netty</groupId>
+	            <artifactId>netty-all</artifactId>
+	            <version>${netty.version}</version>
+	        </dependency>
         	<dependency>
 	            <groupId>org.projectlombok</groupId>
 	            <artifactId>lombok</artifactId>

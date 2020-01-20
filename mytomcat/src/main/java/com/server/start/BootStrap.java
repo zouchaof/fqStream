@@ -8,6 +8,7 @@ import com.constant.info.HostInfo;
 import com.server.core.HttpServer;
 import com.server.core.impl.AioHttpServerImpl;
 import com.server.core.impl.BioHttpServerImpl;
+import com.server.core.impl.NettyHttpServerImpl;
 import com.server.core.impl.NioHttpServerImpl;
 
 public class BootStrap {
@@ -21,6 +22,8 @@ public class BootStrap {
 			server = new NioHttpServerImpl();
 		}else if ("aio".equals(System.getProperty("useIo"))) {
 			server = new AioHttpServerImpl();
+		}else if ("netty".equals(System.getProperty("useIo"))) {
+			server = new NettyHttpServerImpl();
 		}else {
 			return;
 		}
