@@ -3,28 +3,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>fqStream</artifactId>
-        <groupId>com.study</groupId>
+        <artifactId>reverse-regist</artifactId>
+        <groupId>com.reverse</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.reverse</groupId>
-    <artifactId>reverse-regist</artifactId>
 
-    <modules>
-        <module>register-server-api</module>
-        <module>register-server-web</module>
-        <module>register-agent-api</module>
-        <module>register-agent-web</module>
-    </modules>
+    <artifactId>register-server-api</artifactId>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>1.5.12.RELEASE</version>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
@@ -46,7 +33,10 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
         <!-- logback start -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -76,9 +66,18 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.reverse</groupId>
+            <artifactId>register-agent-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
         <!-- logback end -->
-
-
     </dependencies>
+
 
 </project>
