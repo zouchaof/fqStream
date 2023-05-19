@@ -1,4 +1,4 @@
-package com.register.server.handler;
+package com.register.server.netty.handler;
 
 import com.alibaba.fastjson.JSONObject;
 import com.register.agent.req.InnerRequest;

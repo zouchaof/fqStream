@@ -1,24 +1,18 @@
 package com.register.agent.core;
 
 import com.register.agent.handler.AgentInHandle;
-import com.register.agent.req.InnerRequest;
-import com.register.agent.req.InnerResponse;
 import com.register.agent.req.RegisterAgentInfo;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.net.InetSocketAddress;
 import java.time.LocalDateTime;
 
 
@@ -63,7 +57,7 @@ public class AgentMain {
                 agentInfo.setAppName("agent");
                 agentInfo.setPath("/test");
                 agentInfo.setLastRegisterTime(LocalDateTime.now());
-                agentInfo.setServerPath("http://localhost:81");
+                agentInfo.setServerHost("http://localhost:81");
                 future.channel().writeAndFlush(agentInfo);
                 try {
                     Thread.sleep(1000);

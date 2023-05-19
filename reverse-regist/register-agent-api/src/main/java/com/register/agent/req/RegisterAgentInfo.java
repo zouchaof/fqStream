@@ -14,7 +14,7 @@ public class RegisterAgentInfo extends BaseMessage {
 
     private String appName;
 
-    private String serverPath;
+    private String serverHost;
 
     private LocalDateTime lastRegisterTime;
 

@@ -39,8 +39,7 @@ public class AgentInHandle extends ChannelInboundHandlerAdapter {
     }
 
     private void execHttp(InnerRequest request, InnerResponse response) {
-//        response.setContent(HttpRequestUtil.getMethod(request.getUrl()));
-        response.setContent(HttpRequestUtil.getMethod("https://github.com/umijs/qiankun/issues/2492", "utf-8"));
+        response.setContent(HttpRequestUtil.invokeRequest(request));
     }
 
 

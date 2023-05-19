@@ -1,5 +1,7 @@
 server:
   port: 81
+  servlet:
+    context-path: /agent
 
 spring:
   profiles:

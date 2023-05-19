@@ -1,6 +1,5 @@
-package com.register.server.listen;
+package com.register.server.web.handler;
 
-import com.register.agent.req.BaseMessage;
 import com.register.agent.req.InnerRequest;
 import com.register.agent.req.InnerResponse;
 import lombok.Data;
@@ -12,18 +11,18 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class ResponseListen {
+public class ResponseHandler {
 
 
     private static final Map<Long, SkInnerRequest> listenMap = new ConcurrentHashMap<>();
     private static int reqTimeout = 30;
-    private static ResponseListen listen;
+    private static ResponseHandler handler;
 
     private static void addListen(InnerRequest request){
-        if(listen == null){
-            listen = new ResponseListen();
+        if(handler == null){
+            handler = new ResponseHandler();
         }
-        SkInnerRequest skInnerRequest = listen.new SkInnerRequest();
+        SkInnerRequest skInnerRequest = handler.new SkInnerRequest();
         skInnerRequest.setRequest(request);
         listenMap.put(request.getReqId(), skInnerRequest);
         try {

@@ -4,13 +4,12 @@ import com.register.agent.req.InnerRequest;
 import com.register.agent.req.InnerResponse;
 import com.register.agent.req.RegisterAgentInfo;
 import com.register.server.core.RegisterAgentFactory;
-import com.register.server.listen.ResponseListen;
+import com.register.server.web.handler.ResponseHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -66,20 +65,17 @@ public class TestController {
 //        agentInfo.getCtx().writeAndFlush("test");
         InnerRequest request = new InnerRequest();
         request.setReqId(1);
-        request.setUrl(agentInfo.getServerPath() + "timerStop");
-        agentInfo.getCtx().writeAndFlush(request);
+        request.setUrl(agentInfo.getServerHost() + "timerStop");
+//        agentInfo.getCtx().writeAndFlush(request);
 
-//        agentInfo.getCtx().executor().submit(new Runnable() {
-//            @Override
-//            public void run() {
-//                // 执行具体的写操作
-//                agentInfo.getCtx().writeAndFlush(request);
-//            }
-//        });
-//
+        agentInfo.getCtx().executor().submit(() -> {
+            // 执行具体的写操作
+            agentInfo.getCtx().writeAndFlush(request);
+        });
 
 
-        InnerResponse response = ResponseListen.getResponse(request);
+
+        InnerResponse response = ResponseHandler.getResponse(request);
 
         return response.getContent();
 //        return "1";

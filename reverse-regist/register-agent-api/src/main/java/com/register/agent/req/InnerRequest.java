@@ -13,8 +13,10 @@ public class InnerRequest extends BaseMessage {
 
     private String method;
 
-    private Map<String, Object> headMap;
+    private Map<String, String> headMap;
 
-    private Map<String, Object> paramsMap;
+    private Map<String, String> paramsMap;
+
+    private String jsonParam;
 
 }

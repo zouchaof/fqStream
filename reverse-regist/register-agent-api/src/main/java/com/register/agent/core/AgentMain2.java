@@ -1,7 +1,6 @@
 package com.register.agent.core;
 
 import com.register.agent.handler.AgentInHandle;
-import com.register.agent.req.InnerResponse;
 import com.register.agent.req.RegisterAgentInfo;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -56,7 +55,7 @@ public class AgentMain2 {
                 agentInfo.setAppName("agent");
                 agentInfo.setPath("/test");
                 agentInfo.setLastRegisterTime(LocalDateTime.now());
-                agentInfo.setServerPath("http://localhost:81");
+                agentInfo.setServerHost("http://localhost:81");
                 future.channel().writeAndFlush(agentInfo);
 
 
