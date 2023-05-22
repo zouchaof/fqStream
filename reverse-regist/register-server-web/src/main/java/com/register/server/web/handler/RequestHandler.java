@@ -69,14 +69,12 @@ public class RequestHandler {
 
     private static Map<String, String> getHeadMap(HttpServletRequest request){
         return Collections.list(request.getHeaderNames())
-                .stream()
-                .collect(Collectors.toMap(name -> name, request::getHeader));
+                .stream().collect(Collectors.toMap(name -> name, request::getHeader));
     }
 
     private static Map<String, String> getParamMap(HttpServletRequest request){
         return Collections.list(request.getParameterNames())
-                .stream()
-                .collect(Collectors.toMap(name -> name, request::getParameter));
+                .stream().collect(Collectors.toMap(name -> name, request::getParameter));
     }
 
 }

@@ -114,7 +114,7 @@ public class HttpRequestUtil {
         try {
             HttpPost httpPost = new HttpPost(url);
             if(headerMap!=null){
-                headerMap.forEach((key, value) -> httpPost.addHeader(key, value));
+                headerMap.forEach(httpPost::addHeader);
             }
             if(StringUtils.isNotBlank(jsonParam)){
                 StringEntity se = new StringEntity(jsonParam, charset);
@@ -187,7 +187,7 @@ public class HttpRequestUtil {
 
             HttpGet httpGet = new HttpGet(requestUri);
             if(headerMap!=null){
-                headerMap.forEach((key, value) -> httpGet.addHeader(key, value));
+                headerMap.forEach(httpGet::addHeader);
             }
 
             response = httpClient.execute(httpGet);
