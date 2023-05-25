@@ -115,6 +115,8 @@ public class HttpRequestUtil {
             HttpPost httpPost = new HttpPost(url);
             if(headerMap!=null){
                 headerMap.forEach(httpPost::addHeader);
+                httpPost.removeHeaders("Transfer-Encoding");
+                httpPost.removeHeaders("Content-Length");
             }
             if(StringUtils.isNotBlank(jsonParam)){
                 StringEntity se = new StringEntity(jsonParam, charset);
@@ -318,10 +320,12 @@ public class HttpRequestUtil {
         if(StringUtils.isBlank(request.getMethod()) || StringUtils.isBlank(request.getUrl())){
             return "";
         }
+        Map<String, String> headMap = request.getHeadMap();
+        headMap.remove("host");
         //先只支持get,post，其他的都发post
         if(request.getMethod().equalsIgnoreCase("GET")){
-            return getMethod(request.getUrl(), request.getParamsMap(), request.getHeadMap(), "utf-8");
+            return getMethod(request.getUrl(), request.getParamsMap(), headMap, "utf-8");
         }
-        return postMethod(request.getUrl(), request.getParamsMap(), request.getJsonParam(), request.getHeadMap(), "utf-8");
+        return postMethod(request.getUrl(), request.getParamsMap(), request.getJsonParam(), headMap, "utf-8");
     }
 }

@@ -34,28 +34,24 @@ public class ResponseHandler {
 
 
     public static void handleResponse(InnerResponse response){
-        synchronized (String.valueOf(response.getReqId()).intern()){
-            SkInnerRequest skRequest = listenMap.get(response.getReqId());
-            if(skRequest == null){
-                return;
-            }
-            skRequest.setResponse(response);
-            skRequest.getLatch().countDown();
+        SkInnerRequest skRequest = listenMap.get(response.getReqId());
+        if(skRequest == null){
+            return;
         }
+        skRequest.setResponse(response);
+        skRequest.getLatch().countDown();
     }
 
 
     public static InnerResponse getResponse(InnerRequest request){
         addListen(request);
-        synchronized (String.valueOf(request.getReqId()).intern()){
-            SkInnerRequest skRequest = listenMap.get(request.getReqId());
-            if(skRequest == null){
-                return null;
-            }
-            InnerResponse response = skRequest.getResponse();
-            listenMap.remove(request.getReqId());
-            return response;
+        SkInnerRequest skRequest = listenMap.get(request.getReqId());
+        if(skRequest == null){
+            return null;
         }
+        InnerResponse response = skRequest.getResponse();
+        listenMap.remove(request.getReqId());
+        return response;
     }
 
     @Data

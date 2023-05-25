@@ -1,4 +1,4 @@
-package com.register.server.utils;
+package com.register.agent.utils;
 
 public class IdWork {
 

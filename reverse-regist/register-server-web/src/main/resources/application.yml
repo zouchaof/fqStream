@@ -7,11 +7,12 @@ spring:
   jackson:
     time-zone: GMT+8
     date-format: yyyy-MM-dd HH:mm:ss
-#  datasource:
-#      url: jdbc:mysql://192.168.233.132:3306/reptile?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true
-#      username: root
-#      password: 1234
-#      driver-class-name: com.mysql.jdbc.Driver
+  datasource:
+      url: jdbc:h2:~/test
+      username: sa
+      password:
+      driver-class-name: org.h2.Driver
+      schema: classpath:/db/init.sql
 #      # 使用druid数据源
 #      type: com.alibaba.druid.pool.DruidDataSource
 #      druid:
@@ -26,7 +27,7 @@ spring:
     content-type: text/html
     enabled: true
     cache: false #缓存配置
-#    template-loader-path: classpath:/templates/ #模板加载路径 按需配置
+    template-loader-path: classpath:/META-INF/templates/ #模板加载路径 按需配置
     charset: UTF-8 #编码格式
     settings:
         number_format: '0.##'   #数字格式化，无小数点
@@ -34,7 +35,13 @@ spring:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
-#pagehelper:
+  h2:
+    console:
+      path: /h2-console
+      enabled: true
+
+  resources:
+    static-locations: classpath*:/static/**
 #  helper-dialect: mysql
 #  reasonable: true
 #  support-methods-arguments: true

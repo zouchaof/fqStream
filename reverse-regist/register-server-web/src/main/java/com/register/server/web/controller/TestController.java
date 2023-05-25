@@ -6,9 +6,14 @@ import com.register.agent.req.RegisterAgentInfo;
 import com.register.server.core.RegisterAgentFactory;
 import com.register.server.web.handler.ResponseHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -54,32 +59,18 @@ public class TestController {
         return "timer stop";
     }
 
-    @RequestMapping("invoke")
-    @ResponseBody
-    public String invoke() {
-        log.info("invoke start...");
 
+    @GetMapping("/hello2")
+    public String hello2(Model model) {
+//        ModelAndView mv = new ModelAndView("hello");
+//        mv.addObject("title", "Hello");
+//        mv.addObject("message", "Hello, World!");
+        model.addAttribute("title", "Hello");
+        model.addAttribute("message", "Hello, World!");
 
-
-        RegisterAgentInfo agentInfo = RegisterAgentFactory.getExecAgentInfo("agent");
-//        agentInfo.getCtx().writeAndFlush("test");
-        InnerRequest request = new InnerRequest();
-        request.setReqId(1);
-        request.setUrl(agentInfo.getServerHost() + "timerStop");
-//        agentInfo.getCtx().writeAndFlush(request);
-
-        agentInfo.getCtx().executor().submit(() -> {
-            // 执行具体的写操作
-            agentInfo.getCtx().writeAndFlush(request);
-        });
-
-
-
-        InnerResponse response = ResponseHandler.getResponse(request);
-
-        return response.getContent();
-//        return "1";
+        return "hello";
     }
+
 
 
 }

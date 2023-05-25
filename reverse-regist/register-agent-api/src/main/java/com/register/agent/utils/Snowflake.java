@@ -1,4 +1,4 @@
-package com.register.server.utils;
+package com.register.agent.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.concurrent.ThreadLocalRandom;
 
 
 @Slf4j
@@ -34,15 +33,6 @@ public class Snowflake {
     private long sequence = 0L; // 序列号
     private long lastTimestamp = -1L; // 上一次时间戳
 
-    public static void main(String[] args) throws InterruptedException {
-        Snowflake snowflake = new Snowflake();
-        System.out.println(snowflake.nextId());
-        System.out.println(snowflake.nextId());
-        System.out.println(snowflake.nextId());
-        System.out.println(snowflake.nextId());
-        System.out.println(snowflake.nextId());
-        System.out.println(snowflake.nextId());
-    }
 
     public Snowflake() {
         this.datacenterId = getDatacenterId(MAX_DATACENTER_NUM);
