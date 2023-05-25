@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -24,6 +26,17 @@ public class ManageController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @GetMapping("/home")
+    public String index(Model model) {
+//        ModelAndView mv = new ModelAndView("hello");
+//        mv.addObject("title", "Hello");
+//        mv.addObject("message", "Hello, World!");
+//        model.addAttribute("title", "Hello");
+        model.addAttribute("appNameSet", RegisterAgentFactory.getAppNameSet());
+
+        return "home";
+    }
+
     @ResponseBody
     @RequestMapping("getAppNameSet")
     public Set<String> getAppNameSet(){
@@ -32,9 +45,10 @@ public class ManageController {
 
     @ResponseBody
     @RequestMapping("add")
-    public Result add(String appName, String mappingPath){
-        return Result.ok(jdbcTemplate.update("INSERT INTO t_appname_path(app_name, mapping_path, create_time) VALUES (?, ?, now())",
-                appName, mappingPath));
+    public Result add(String appName, String mappingPath, String serverPath){
+        return Result.ok(jdbcTemplate.update(
+                "INSERT INTO t_appname_path(app_name, mapping_path, server_path, create_time) VALUES (?, ?, ?, now())",
+                appName, mappingPath, serverPath));
     }
     @ResponseBody
     @RequestMapping("delete")
